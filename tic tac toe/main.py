@@ -24,13 +24,11 @@ pygame.display.set_caption('Tic-tac-toe')
 X_IMAGE = pygame.transform.scale(pygame.image.load('assets/x.png'), (CELL_SIZE-100, CELL_SIZE-100))
 O_IMAGE = pygame.transform.scale(pygame.image.load('assets/o.png'), (CELL_SIZE-100, CELL_SIZE-100))
 
-restart_img = pygame.image.load("assets/restart.png")  # Загружаем картинку
+restart_img = pygame.image.load("assets/restart.png")
 restart_img_pil = Image.frombytes('RGBA', restart_img.get_size(), pygame.image.tostring(restart_img, 'RGBA'))
 blurred_img_pil = restart_img_pil.filter(ImageFilter.GaussianBlur(radius=9))
 blurred_img = pygame.image.fromstring(blurred_img_pil.tobytes(), blurred_img_pil.size, 'RGBA')
-
 restart_img = blurred_img
-
 
 # game settings
 player = 'X'
@@ -38,19 +36,17 @@ bot = 'O'
 current_player = player
 game_over = False
 
-# Счет
+# score
 player_wins = 0
 bot_wins = 0
 
-
 def draw_lines():
-    """Draw grid"""
+    """draw grid and grid borders"""
     pygame.draw.line(screen, LINE_COLOR, (225, 375), (675, 375), LINE_WIDTH//2)  
     pygame.draw.line(screen, LINE_COLOR, (225, 525), (675, 525), LINE_WIDTH//2)  
     pygame.draw.line(screen, LINE_COLOR, (375, 225), (375, 675), LINE_WIDTH//2)  
     pygame.draw.line(screen, LINE_COLOR, (525, 225), (525, 675), LINE_WIDTH//2)  
-
-    # Borders
+    
     pygame.draw.line(screen, LINE_COLOR, (225, 225), (675, 225), LINE_WIDTH//2)  
     pygame.draw.line(screen, LINE_COLOR, (225, 675), (675, 675), LINE_WIDTH//2)  
     pygame.draw.line(screen, LINE_COLOR, (225, 225), (225, 675), LINE_WIDTH//2)  
@@ -58,7 +54,7 @@ def draw_lines():
 
 
 def draw_marks(board):
-    """Draw X and O in the correct grid cells"""
+    """draw X and O in the correct grid cells"""
     for row in range(GRID_SIZE):
         for col in range(GRID_SIZE):
             if board[row][col] == 'X':
@@ -74,28 +70,27 @@ def draw_marks(board):
 def draw_game_over(screen,angle):
     restart_img = pygame.image.load("assets/restart.png")
     restart_img = pygame.transform.scale(restart_img, (150, 150))
-
     rotated_img = pygame.transform.rotate(restart_img, angle)
-    restart_rect = rotated_img.get_rect(center=(450, 450))  # Центр фиксируем
-
+    restart_rect = rotated_img.get_rect(center=(450, 450))
     screen.blit(rotated_img, restart_rect.topleft)
-
-    return restart_rect  # Возвращаем обновленный Rect
+    return restart_rect  
 
 
 def draw_score():
-    """Рисует счет под полем"""
     font = pygame.font.Font(None, 40)
-    player_text = font.render(f"Игрок: {player_wins}", True, (0, 0, 0))
-    bot_text = font.render(f"Бот: {bot_wins}", True, (0, 0, 0))
+    player_text = font.render(f"Player: {player_wins}", True, (0, 0, 0))
+    bot_text = font.render(f"Bot: {bot_wins}", True, (0, 0, 0))
+    
+    player_rect = player_text.get_rect(center=(WIDTH // 3, HEIGHT - 100))
+    bot_rect = bot_text.get_rect(center=(WIDTH // 3 * 2, HEIGHT - 100))
 
-    screen.blit(player_text, (WIDTH // 3, HEIGHT - 100))
-    screen.blit(bot_text, (WIDTH // 3 * 2, HEIGHT - 100))
+    screen.blit(player_text, player_rect.topleft)
+    screen.blit(bot_text, bot_rect.topleft)
 
 
 def main():
     global current_player, game_over, player_wins, bot_wins
-    board = [[' ' for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]  # Инициализация поля
+    board = [[' ' for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]  # matrix
     screen = pygame.display.set_mode((900, 900))
     clock = pygame.time.Clock()
     
@@ -111,20 +106,19 @@ def main():
         draw_score()
 
         if game_over:
-            # Эффект размытия только на сетке
+            # blur on grid
             overlay = pygame.Surface((WIDTH // 2 + 2, HEIGHT // 2 + 2))
-            overlay.set_alpha(150)  # Прозрачность
-            overlay.fill((255, 255, 255))  # Белый цвет
+            overlay.set_alpha(150)  
+            overlay.fill((255, 255, 255))  
             screen.blit(overlay, (225, 225))
 
-            # Рисуем экран завершения
             restart_button = draw_game_over(screen, angle)
             
             pygame.display.flip()
             clock.tick(30)  
             angle += 5 *direction
 
-            # Слушаем события
+            # listen events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
